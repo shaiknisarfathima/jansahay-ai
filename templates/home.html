@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JanSahay AI - Indian Government Scheme Discovery & Assistance</title>
+    <!-- Accessible, Responsive Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jansahay.css') }}">
+</head>
+<body>
+    <!-- Indian Tricolor Accent Stripe -->
+    <div class="gov-tricolor-bar">
+        <span class="bar-saffron"></span>
+        <span class="bar-white"></span>
+        <span class="bar-green"></span>
+    </div>
+
+    <!-- Accessibility & Multilingual Bar (Req 3 & 6) -->
+    <div class="top-utility-bar">
+        <div class="top-utility-container">
+            <div class="utility-left">
+                <span class="utility-flag">🇮🇳 <strong>JanSahay AI</strong></span>
+                <span style="opacity: 0.7;">|</span>
+                <span data-i18n="hero_badge" style="font-size: 0.8rem; opacity: 0.9;">Official Scheme Discovery Platform</span>
+            </div>
+            <div class="utility-right">
+                <!-- Language Selector: English, Hindi, Telugu (Req 3) -->
+                <div class="ctrl-group">
+                    <span class="ctrl-label">Language:</span>
+                    <button type="button" class="btn-util active" data-lang-btn="en" onclick="setLanguage('en')">English</button>
+                    <button type="button" class="btn-util" data-lang-btn="hi" onclick="setLanguage('hi')">हिन्दी</button>
+                    <button type="button" class="btn-util" data-lang-btn="te" onclick="setLanguage('te')">తెలుగు</button>
+                </div>
+                <!-- Font Size Controls (Req 6) -->
+                <div class="ctrl-group">
+                    <span class="ctrl-label" data-i18n="font_label">Font:</span>
+                    <button type="button" class="btn-util" data-fontsize-btn="sm" onclick="setFontSize('sm')" title="Small Text">A-</button>
+                    <button type="button" class="btn-util active" data-fontsize-btn="md" onclick="setFontSize('md')" title="Normal Text">A</button>
+                    <button type="button" class="btn-util" data-fontsize-btn="lg" onclick="setFontSize('lg')" title="Large Text">A+</button>
+                    <button type="button" class="btn-util" data-fontsize-btn="xl" onclick="setFontSize('xl')" title="Extra Large Text">A++</button>
+                </div>
+                <!-- High Contrast Toggle (Req 6) -->
+                <button type="button" id="contrastToggleBtn" class="btn-util" onclick="toggleContrast()" data-i18n="contrast_btn" title="Toggle High Contrast Mode">
+                    🌓 High Contrast
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="/" class="brand-link">
+                <div class="brand-crest">🏛️</div>
+                <div>
+                    <div class="brand-title" data-i18n="brand_name">JanSahay AI</div>
+                    <div class="brand-subtitle" data-i18n="brand_subtitle">Government Scheme Discovery & Assistance</div>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="/" class="active" data-i18n="nav_home">Home</a>
+                <a href="/search" data-i18n="nav_search">Find Schemes</a>
+                <a href="#volunteer" data-i18n="nav_volunteer">
+                    Volunteer Help <span class="nav-badge-pill">Demo</span>
+                </a>
+                <a href="#contact" data-i18n="nav_contact">Contact</a>
+                <a href="javascript:void(0)" onclick="toggleChatWindow()" data-i18n="nav_chat">💬 AI Assistant</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container">
+        <!-- Welcoming Hero Section (Req 2) -->
+        <section class="hero-section">
+            <div class="hero-badge-pill">
+                <span>🛡️</span>
+                <span data-i18n="hero_badge">Official Scheme Discovery Platform</span>
+            </div>
+            <h1 class="hero-title" data-i18n="hero_title">Find Government Schemes You Deserve</h1>
+            <p class="hero-subtitle" data-i18n="hero_subtitle">
+                Access verified welfare schemes across India. Check official eligibility, prepare documents with interactive checklists, and track application steps.
+            </p>
+
+            <!-- Hero Keyword Search Bar -->
+            <form action="/search" method="get" class="hero-search-form">
+                <input type="text" name="query" class="hero-search-input" 
+                       placeholder="Search schemes (e.g., scholarship, farmer, pension, health)..." 
+                       data-i18n-ph="search_placeholder" 
+                       aria-label="Search schemes by keyword">
+                <button type="submit" class="hero-search-btn">
+                    <span>🔍</span>
+                    <span data-i18n="btn_search">Search Schemes</span>
+                </button>
+            </form>
+
+            <!-- Quick Category Filter Chips -->
+            <div class="quick-chips-wrapper">
+                <span class="quick-chips-label">Popular Searches:</span>
+                <a href="/search?query=farmer" class="quick-chip">🌾 Farmers</a>
+                <a href="/search?query=scholarship" class="quick-chip">🎓 Scholarship</a>
+                <a href="/search?query=women" class="quick-chip">👩 Women</a>
+                <a href="/search?query=health" class="quick-chip">🏥 Healthcare</a>
+                <a href="/search?query=pension" class="quick-chip">👵 Pension</a>
+                <a href="/search?query=housing" class="quick-chip">🏠 Housing</a>
+            </div>
+
+            <!-- Primary Actions -->
+            <div class="hero-actions">
+                <a href="/search" class="btn-hero-primary">
+                    <span data-i18n="btn_explore">Explore All Schemes</span>
+                    <span>→</span>
+                </a>
+                <a href="#volunteer" class="btn-hero-secondary">
+                    <span>🤝</span>
+                    <span data-i18n="btn_volunteer_hero">Need Help? Request a Volunteer</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Trust & Impact Stats -->
+        <section class="trust-metrics-bar">
+            <div class="trust-metric-card">
+                <div class="trust-metric-icon">📑</div>
+                <div>
+                    <div class="trust-metric-val">{{ total_schemes_count }}+</div>
+                    <div class="trust-metric-label" data-i18n="stat_schemes_lbl">Verified Government Schemes</div>
+                </div>
+            </div>
+            <div class="trust-metric-card">
+                <div class="trust-metric-icon">🏢</div>
+                <div>
+                    <div class="trust-metric-val">{{ unique_regions_count }}+</div>
+                    <div class="trust-metric-label" data-i18n="stat_portals_lbl">Official Welfare Portals & States</div>
+                </div>
+            </div>
+            <div class="trust-metric-card">
+                <div class="trust-metric-icon">🆓</div>
+                <div>
+                    <div class="trust-metric-val" data-i18n="stat_free_num">100% Free</div>
+                    <div class="trust-metric-label" data-i18n="stat_free_lbl">Transparent Citizen Access</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- STYLED CSS PLACEHOLDER CARD (Req 1: Replaces schemesfinder.jpg with zero broken images) -->
+        <a href="/search" class="scheme-finder-card" aria-label="Open JanSahay Government Scheme Explorer">
+            <div class="scheme-finder-media">
+                {% if has_schemesfinder_img %}
+                <img src="{{ url_for('static', filename='schemesfinder.jpg') }}" 
+                     alt="Indian Government Schemes Finder" 
+                     class="scheme-finder-img"
+                     onerror="this.style.display='none'; document.getElementById('cssSchemePlaceholder').style.display='flex';">
+                <div id="cssSchemePlaceholder" class="styled-css-placeholder" style="display: none;">
+                {% else %}
+                <div id="cssSchemePlaceholder" class="styled-css-placeholder">
+                {% endif %}
+                    <div class="placeholder-tricolor-strip">
+                        <span class="tc-saffron"></span>
+                        <span class="tc-white"></span>
+                        <span class="tc-green"></span>
+                    </div>
+                    <div class="placeholder-content">
+                        <div class="ph-crest">🏛️</div>
+                        <div class="ph-tag" data-i18n="hero_badge">Official Scheme Discovery Platform</div>
+                        <h2 class="ph-title" data-i18n="ph_title">JanSahay AI Scheme Engine</h2>
+                        <p class="ph-count" data-i18n="ph_subtitle">2,000+ Verified Government Schemes Across India</p>
+                        <div class="ph-chips">
+                            <span class="ph-chip">✓ Central & State Portals</span>
+                            <span class="ph-chip">✓ Interactive Document Checklists</span>
+                            <span class="ph-chip">✓ Step-by-Step Application Guide</span>
+                            <span class="ph-chip">✓ Community Volunteer Help (Demo)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="scheme-finder-cta">
+                <span class="cta-label" data-i18n="start_finding">Start Finding Schemes</span>
+                <span class="cta-arrow">→</span>
+            </div>
+        </a>
+
+        <!-- How JanSahay AI Empowers Citizens (3 Steps) -->
+        <section style="margin-bottom: 48px;">
+            <h2 class="section-title" data-i18n="how_it_works_title">How JanSahay AI Empowers Citizens</h2>
+            <p class="section-subtitle" data-i18n="how_it_works_subtitle">
+                We simplify government schemes without modifying or inventing rules.
+            </p>
+            <div class="how-it-works-grid">
+                <div class="step-guide-card">
+                    <div class="step-num-badge">1</div>
+                    <h3 class="step-guide-title" data-i18n="how_step1_title">1. Discover Schemes</h3>
+                    <p class="step-guide-desc" data-i18n="how_step1_desc">
+                        Filter schemes by state, central level, application mode or your specific need.
+                    </p>
+                </div>
+                <div class="step-guide-card">
+                    <div class="step-num-badge">2</div>
+                    <h3 class="step-guide-title" data-i18n="how_step2_title">2. Verify Official Eligibility</h3>
+                    <p class="step-guide-desc" data-i18n="how_step2_desc">
+                        Review authentic eligibility rules and tick off required certificates in your interactive checklist.
+                    </p>
+                </div>
+                <div class="step-guide-card">
+                    <div class="step-num-badge">3</div>
+                    <h3 class="step-guide-title" data-i18n="how_step3_title">3. Track Application Steps</h3>
+                    <p class="step-guide-desc" data-i18n="how_step3_desc">
+                        Follow the application tracker, mark completed steps, and discover direct official portals.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Popular Categories Section -->
+        <section style="margin-bottom: 48px;">
+            <h2 class="section-title" data-i18n="categories_title">Popular Scheme Categories</h2>
+            <p class="section-subtitle" data-i18n="categories_subtitle">
+                Browse schemes tailored to different life stages and professions.
+            </p>
+            <div class="categories-grid">
+                <a href="/search?query=farmer" class="category-card">
+                    <span class="cat-icon">🌾</span>
+                    <span class="cat-name" data-i18n="cat_farmers">Farmers & Agriculture</span>
+                </a>
+                <a href="/search?query=student" class="category-card">
+                    <span class="cat-icon">🎓</span>
+                    <span class="cat-name" data-i18n="cat_students">Students & Education</span>
+                </a>
+                <a href="/search?query=women" class="category-card">
+                    <span class="cat-icon">👩</span>
+                    <span class="cat-name" data-i18n="cat_women">Women & Child Care</span>
+                </a>
+                <a href="/search?query=health" class="category-card">
+                    <span class="cat-icon">🏥</span>
+                    <span class="cat-name" data-i18n="cat_health">Healthcare & Medicine</span>
+                </a>
+                <a href="/search?query=pension" class="category-card">
+                    <span class="cat-icon">👵</span>
+                    <span class="cat-name" data-i18n="cat_pension">Social Security & Pension</span>
+                </a>
+                <a href="/search?query=subsidy" class="category-card">
+                    <span class="cat-icon">💼</span>
+                    <span class="cat-name" data-i18n="cat_business">Small Business & MSME</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- VOLUNTEER ASSISTANCE SECTION (Req 7) -->
+        <section id="volunteer" class="volunteer-section">
+            <div class="vol-header">
+                <div class="vol-badge" data-i18n="vol_demo_badge">DEMO PROTOTYPE ONLY</div>
+                <h2 class="vol-title" data-i18n="vol_title">JanSahay Volunteer Assistance</h2>
+                <p class="vol-subtitle" data-i18n="vol_subtitle">
+                    Need help understanding eligibility or filling out the application? Request friendly community guidance.
+                </p>
+            </div>
+
+            <!-- Prominent Demo Disclaimer Banner (Req 7) -->
+            <div class="demo-disclaimer-banner">
+                <div class="demo-icon">⚠️</div>
+                <div class="demo-text">
+                    <strong data-i18n="vol_demo_badge">DEMO NOTICE:</strong>
+                    <span data-i18n="vol_demo_alert">
+                        This volunteer request portal is a prototype for demonstration and testing. No real volunteers are currently dispatched. For immediate official government assistance, please visit your nearest Common Service Centre (CSC) or call the national citizen helpline at 14449.
+                    </span>
+                </div>
+            </div>
+
+            <!-- Demo Result Card (Populated upon submission) -->
+            <div id="volunteerDemoResult" class="demo-result-card" style="display: none;">
+                <div class="demo-res-title">
+                    <span>✅</span>
+                    <span data-i18n="vol_success_title">Demo Request Submitted Successfully!</span>
+                </div>
+                <p>
+                    <span data-i18n="vol_success_msg">Thank you! Your simulated request has been recorded under Demo Tracking ID:</span>
+                </p>
+                <div>
+                    <span class="demo-res-id" id="demoTrackingId">JS-VOL-12345</span>
+                </div>
+                <div style="font-size: 0.92rem; color: #2e7d32;">
+                    <strong>Citizen:</strong> <span id="demoCitizenName"></span> | 
+                    <strong>Scheme:</strong> <span id="demoSchemeName"></span>
+                </div>
+                <p style="font-size: 0.85rem; color: #4e342e;" data-i18n="vol_helpline_note">
+                    Remember: For official government scheme applications, consult official government portals or CSC centers.
+                </p>
+            </div>
+
+            <!-- Request Help Form -->
+            <form id="volunteerRequestForm" method="post" action="/request-assistance">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="volName" data-i18n="vol_name_label">Your Full Name *</label>
+                        <input type="text" id="volName" name="name" class="form-input" required placeholder="e.g., Ramesh Kumar">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="volPhone" data-i18n="vol_phone_label">Mobile Number (10 digits) *</label>
+                        <input type="tel" id="volPhone" name="phone" class="form-input" required pattern="[0-9]{10}" placeholder="e.g., 9876543210">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="volLocation" data-i18n="vol_location_label">State & District / Town *</label>
+                        <input type="text" id="volLocation" name="state_district" class="form-input" required placeholder="e.g., Andhra Pradesh, Guntur">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="volScheme" data-i18n="vol_scheme_label">Scheme You Need Help With</label>
+                        <input type="text" id="volScheme" name="scheme_name" class="form-input" placeholder="e.g., PM Kisan or Scholarship">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="volType" data-i18n="vol_type_label">Type of Assistance Needed</label>
+                        <select id="volType" name="assistance_type" class="form-select">
+                            <option value="Form Filling Assistance" data-i18n="vol_type_opt1">Form Filling Assistance</option>
+                            <option value="Document Checklist Preparation" data-i18n="vol_type_opt2">Document Checklist Preparation</option>
+                            <option value="Eligibility Verification" data-i18n="vol_type_opt3">Eligibility Verification</option>
+                            <option value="Language Translation / Explanation" data-i18n="vol_type_opt4">Language Translation / Explanation</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="volLang" data-i18n="vol_lang_label">Preferred Contact Language</label>
+                        <select id="volLang" name="preferred_lang" class="form-select">
+                            <option value="en">English</option>
+                            <option value="hi">हिन्दी (Hindi)</option>
+                            <option value="te">తెలుగు (Telugu)</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label" for="volNotes" data-i18n="vol_notes_label">Additional Notes or Accessibility Needs</label>
+                        <textarea id="volNotes" name="notes" class="form-textarea" placeholder="Tell us if you require large print, assistance for elderly family members, or specific questions..."></textarea>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                    <button type="submit" class="btn-primary" data-i18n="btn_submit_vol">
+                        <span>📝</span>
+                        <span>Submit Volunteer Request (Demo)</span>
+                    </button>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">
+                        🔒 Your information is used for demonstration purposes only.
+                    </span>
+                </div>
+            </form>
+        </section>
+
+        <!-- Contact & Official Helpline Information -->
+        <section id="contact" style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 28px; margin-bottom: 40px;">
+            <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 12px;">Contact & Government Citizen Helplines</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px;">
+                <div>
+                    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">National Helpdesk Numbers</h3>
+                    <p style="margin-bottom: 4px;"><strong>National Citizen Helpline:</strong> <a href="tel:14449">14449</a></p>
+                    <p style="margin-bottom: 4px;"><strong>PM Kisan Helpline:</strong> <a href="tel:155261">155261 / 1800-11-5526</a></p>
+                    <p><strong>National Scholarship Portal:</strong> <a href="tel:01206619540">0120-6619540</a></p>
+                </div>
+                <div>
+                    <h3 style="font-size: 1rem; font-weight: 700; margin-bottom: 6px;">JanSahay Project Support</h3>
+                    <p style="margin-bottom: 4px;"><strong>Email:</strong> support@jansahay.gov.example / rakeshreddy@gmail.com</p>
+                    <p style="margin-bottom: 4px;"><strong>Technical Desk:</strong> +91 8125413287</p>
+                    <p><strong>Academic Centre:</strong> Veltech, Avadi, Chennai</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <h4 data-i18n="brand_name">JanSahay AI</h4>
+                <p data-i18n="hero_subtitle">
+                    Empowering Indian citizens with verified welfare information, eligibility checks, and step-by-step application guidance.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <p><a href="/" data-i18n="nav_home">Home</a></p>
+                <p><a href="/search" data-i18n="nav_search">Find Schemes</a></p>
+                <p><a href="#volunteer" data-i18n="nav_volunteer">Volunteer Assistance (Demo)</a></p>
+                <p><a href="#contact" data-i18n="nav_contact">Contact & Helplines</a></p>
+            </div>
+            <div class="footer-col">
+                <h4>Accessibility & Rights</h4>
+                <p>✓ Multilingual: Telugu, Hindi, English</p>
+                <p>✓ High Contrast & Font-Size Accessible</p>
+                <p>✓ Official CSV Data: No invented requirements</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; JanSahay AI Project. Dedicated to accessible, transparent citizen welfare across India.
+        </div>
+    </footer>
+
+    <!-- Chatbot Floating Bubble & Window -->
+    <div class="chat-bubble-toggle" onclick="toggleChatWindow()" title="Open JanSahay AI Assistant" aria-label="Open AI Assistant">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+        </svg>
+    </div>
+
+    <div class="chat-window" id="chatWindow" role="dialog" aria-label="JanSahay AI Chatbot">
+        <div class="chat-header">
+            <span data-i18n="chat_title">JanSahay AI Assistant</span>
+            <button class="chat-close-btn" onclick="toggleChatWindow()" aria-label="Close Chat">&times;</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-message bot" data-i18n="chat_greeting">
+                Namaste! I am JanSahay AI. Ask me about any government scheme, eligibility, benefits or application steps in Telugu, Hindi or English.
+            </div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Ask about a scheme..." data-i18n-ph="chat_input_ph" onkeydown="handleKeydown(event)">
+            <button onclick="sendMessage()" data-i18n="chat_send">Send</button>
+        </div>
+    </div>
+
+    <!-- JanSahay AI Scripts -->
+    <script src="{{ url_for('static', filename='js/jansahay.js') }}"></script>
+</body>
+</html>

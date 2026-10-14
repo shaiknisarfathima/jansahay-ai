@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ scheme.name if scheme else 'Scheme Details' }} - JanSahay AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jansahay.css') }}">
+</head>
+<body>
+    <!-- Indian Tricolor Accent Stripe -->
+    <div class="gov-tricolor-bar">
+        <span class="bar-saffron"></span>
+        <span class="bar-white"></span>
+        <span class="bar-green"></span>
+    </div>
+
+    <!-- Accessibility & Multilingual Bar (Req 3 & 6) -->
+    <div class="top-utility-bar">
+        <div class="top-utility-container">
+            <div class="utility-left">
+                <span class="utility-flag">🇮🇳 <strong>JanSahay AI</strong></span>
+                <span style="opacity: 0.7;">|</span>
+                <span data-i18n="scheme_overview" style="font-size: 0.8rem; opacity: 0.9;">Official Scheme Application & Step Tracker</span>
+            </div>
+            <div class="utility-right">
+                <!-- Language Selector (Req 3) -->
+                <div class="ctrl-group">
+                    <span class="ctrl-label">Language:</span>
+                    <button type="button" class="btn-util active" data-lang-btn="en" onclick="setLanguage('en')">English</button>
+                    <button type="button" class="btn-util" data-lang-btn="hi" onclick="setLanguage('hi')">हिन्दी</button>
+                    <button type="button" class="btn-util" data-lang-btn="te" onclick="setLanguage('te')">తెలుగు</button>
+                </div>
+                <!-- Font Size Controls (Req 6) -->
+                <div class="ctrl-group">
+                    <span class="ctrl-label" data-i18n="font_label">Font:</span>
+                    <button type="button" class="btn-util" data-fontsize-btn="sm" onclick="setFontSize('sm')" title="Small Text">A-</button>
+                    <button type="button" class="btn-util active" data-fontsize-btn="md" onclick="setFontSize('md')" title="Normal Text">A</button>
+                    <button type="button" class="btn-util" data-fontsize-btn="lg" onclick="setFontSize('lg')" title="Large Text">A+</button>
+                    <button type="button" class="btn-util" data-fontsize-btn="xl" onclick="setFontSize('xl')" title="Extra Large Text">A++</button>
+                </div>
+                <!-- High Contrast Toggle (Req 6) -->
+                <button type="button" id="contrastToggleBtn" class="btn-util" onclick="toggleContrast()" data-i18n="contrast_btn" title="Toggle High Contrast Mode">
+                    🌓 High Contrast
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="/" class="brand-link">
+                <div class="brand-crest">🏛️</div>
+                <div>
+                    <div class="brand-title" data-i18n="brand_name">JanSahay AI</div>
+                    <div class="brand-subtitle" data-i18n="brand_subtitle">Government Scheme Discovery & Assistance</div>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="/" data-i18n="nav_home">Home</a>
+                <a href="/search" class="active" data-i18n="nav_search">Find Schemes</a>
+                <a href="/#volunteer" data-i18n="nav_volunteer">
+                    Volunteer Help <span class="nav-badge-pill">Demo</span>
+                </a>
+                <a href="/#contact" data-i18n="nav_contact">Contact</a>
+                <a href="javascript:void(0)" onclick="toggleChatWindow()" data-i18n="nav_chat">💬 AI Assistant</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main class="container">
+        <!-- Back Navigation Button -->
+        <div style="margin-bottom: 20px;">
+            <a href="/search" class="btn-secondary" data-i18n="back_search">
+                <span>← Back to Scheme Search</span>
+            </a>
+        </div>
+
+        {% if scheme %}
+        <!-- Hidden Scheme Metadata for JavaScript Tracker -->
+        <div id="schemeMetadata" data-scheme-id="{{ scheme.id }}" style="display: none;"></div>
+
+        <!-- Scheme Header Card -->
+        <article class="detail-card" style="border-left: 6px solid var(--primary);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 14px;">
+                <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-primary); line-height: 1.25; flex: 1;">
+                    {{ scheme.name }}
+                </h1>
+                <div class="badges-wrap">
+                    {% if scheme.level %}
+                    <span class="badge {{ 'badge-central' if 'central' in scheme.level.lower() else 'badge-state' }}">
+                        🏛️ {{ scheme.level }}
+                    </span>
+                    {% endif %}
+                    {% if scheme.region %}
+                    <span class="badge badge-state">
+                        📍 {{ scheme.region }}
+                    </span>
+                    {% endif %}
+                    {% if scheme.mode %}
+                    <span class="badge {{ 'badge-online' if 'online' in scheme.mode.lower() else 'badge-offline' }}">
+                        🌐 {{ scheme.mode }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Action Bar -->
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border-color);">
+                {% if scheme.official_link %}
+                <a href="{{ scheme.official_link }}" target="_blank" rel="noopener noreferrer" class="btn-primary" data-i18n="btn_open_official">
+                    <span>🏛️ Open Official Government Portal ↗</span>
+                </a>
+                {% elif scheme.myscheme_url %}
+                <a href="{{ scheme.myscheme_url }}" target="_blank" rel="noopener noreferrer" class="btn-primary" data-i18n="btn_open_myscheme">
+                    <span>🏛️ View on MyScheme.gov.in ↗</span>
+                </a>
+                {% endif %}
+                <a href="#volunteer-assist" class="btn-secondary" data-i18n="btn_help_card">
+                    <span>🤝 Request Volunteer Guidance (Demo)</span>
+                </a>
+            </div>
+        </article>
+
+        <!-- Scheme Description / Overview -->
+        {% if scheme.description %}
+        <section class="detail-card">
+            <h2 class="detail-sec-title">
+                <span>📖</span>
+                <span data-i18n="scheme_overview">Scheme Overview</span>
+            </h2>
+            <div class="detail-text">{{ scheme.description }}</div>
+        </section>
+        {% endif %}
+
+        <!-- Key Benefits & Financial Assistance (Authentic CSV data) -->
+        {% if scheme.benefits %}
+        <section class="detail-card" style="border-left: 4px solid #2e7d32;">
+            <h2 class="detail-sec-title" style="color: #2e7d32;">
+                <span>🎁</span>
+                <span data-i18n="scheme_benefits">Key Benefits & Financial Assistance</span>
+            </h2>
+            <div class="detail-text">{{ scheme.benefits }}</div>
+        </section>
+        {% endif %}
+
+        <!-- Official Eligibility Criteria (Authentic CSV data - Never Invented) -->
+        {% if scheme.eligibility or scheme.eligibility_gen %}
+        <section class="detail-card" style="border-left: 4px solid #0d47a1;">
+            <h2 class="detail-sec-title" style="color: #0d47a1;">
+                <span>📋</span>
+                <span data-i18n="scheme_eligibility">Official Eligibility Criteria</span>
+            </h2>
+            {% if scheme.eligibility %}
+            <div class="detail-text">{{ scheme.eligibility }}</div>
+            {% endif %}
+            {% if scheme.eligibility_gen %}
+            <div style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border-color);">
+                <strong style="color: var(--text-secondary);">General Criteria:</strong>
+                <div class="detail-text" style="margin-top: 4px;">{{ scheme.eligibility_gen }}</div>
+            </div>
+            {% endif %}
+        </section>
+        {% endif %}
+
+        <!-- Exclusions / Ineligibility (if present) -->
+        {% if scheme.exclusions %}
+        <section class="detail-card" style="border-left: 4px solid #c62828;">
+            <h2 class="detail-sec-title" style="color: #c62828;">
+                <span>🚫</span>
+                <span data-i18n="scheme_ineligibility">Exclusions & Ineligibility</span>
+            </h2>
+            <div class="detail-text">{{ scheme.exclusions }}</div>
+        </section>
+        {% endif %}
+
+        <!-- REQUIRED DOCUMENTS CHECKLIST (Req 4: Interactive Document Checklist) -->
+        <section class="docs-checklist-card">
+            <div class="docs-header">
+                <div>
+                    <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--primary);" data-i18n="docs_title">
+                        Required Documents Checklist
+                    </h2>
+                    <p style="font-size: 0.92rem; color: var(--text-secondary); margin-top: 2px;" data-i18n="docs_subtitle">
+                        Check off each document as you gather it before applying:
+                    </p>
+                </div>
+                <div>
+                    <span id="docsCountBadge" class="docs-counter-badge">0 documents collected</span>
+                </div>
+            </div>
+
+            <!-- Interactive Checklist Items -->
+            {% if scheme.documents_list and scheme.documents_list|length > 0 %}
+            <div class="docs-list">
+                {% for doc in scheme.documents_list %}
+                <div class="doc-item">
+                    <input type="checkbox" id="doc_cb_{{ loop.index }}" class="doc-checkbox" aria-label="Mark document collected">
+                    <label for="doc_cb_{{ loop.index }}" class="doc-label">{{ doc }}</label>
+                </div>
+                {% endfor %}
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 14px; flex-wrap: wrap;">
+                <button type="button" id="checkAllDocsBtn" class="btn-secondary" style="font-size: 0.85rem; padding: 6px 14px; min-height: 36px;" data-i18n="btn_check_all_docs">
+                    Mark All Collected
+                </button>
+                <button type="button" id="resetDocsBtn" class="btn-secondary" style="font-size: 0.85rem; padding: 6px 14px; min-height: 36px;" data-i18n="btn_reset_docs">
+                    Reset Checklist
+                </button>
+            </div>
+            {% else %}
+            <!-- Fallback full text if bullet separation wasn't detected -->
+            <div class="detail-text">{{ scheme.documents if scheme.documents else 'Please refer to the official application portal for document requirements.' }}</div>
+            {% endif %}
+        </section>
+
+        <!-- INTERACTIVE APPLICATION STEP TRACKER (Req 5) -->
+        <section class="step-tracker-card">
+            <div class="tracker-header">
+                <div>
+                    <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--primary);" data-i18n="steps_title">
+                        Application Process & Interactive Step Tracker
+                    </h2>
+                    <p style="font-size: 0.92rem; color: var(--text-secondary); margin-top: 2px;" data-i18n="steps_tracker_subtitle">
+                        Track your progress step-by-step. Mark completed steps to see what's next:
+                    </p>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="tracker-progress-wrap">
+                <div class="progress-bar-outer">
+                    <div id="stepProgressBar" class="progress-bar-inner"></div>
+                </div>
+                <div class="progress-text-row">
+                    <span data-i18n="tracker_progress">Application Progress:</span>
+                    <span id="stepProgressPct">0%</span>
+                </div>
+            </div>
+
+            <!-- Current Active Step Callout Banner -->
+            <div class="active-step-callout">
+                <div class="active-step-icon">👉</div>
+                <div>
+                    <div style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 800; color: var(--primary);" data-i18n="tracker_next_step">
+                        Current Step:
+                    </div>
+                    <div id="activeStepDesc" class="active-step-text">
+                        Loading first application step...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step Items List -->
+            {% if scheme.steps and scheme.steps|length > 0 %}
+            <div class="step-items-list">
+                {% for step in scheme.steps %}
+                <div class="step-item" id="step_item_{{ loop.index }}">
+                    <input type="checkbox" id="step_cb_{{ loop.index }}" class="step-checkbox" aria-label="Mark step complete">
+                    <div class="step-content">
+                        <div class="step-title-row">
+                            <span class="step-badge">Step {{ loop.index }}</span>
+                        </div>
+                        <div class="step-text">{{ step }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Step Tracker Action Controls (Req 5, 6) -->
+            <div class="tracker-actions">
+                <button type="button" id="advanceNextStepBtn" class="btn-primary" data-i18n="btn_next_step">
+                    <span>Next Step →</span>
+                </button>
+                <button type="button" id="resetStepTrackerBtn" class="btn-secondary" data-i18n="btn_reset_steps">
+                    <span>↺ Reset Steps Tracker</span>
+                </button>
+            </div>
+
+            <!-- Celebration Alert when 100% complete -->
+            <div id="stepCelebrationBanner" class="celebration-banner" data-i18n="all_steps_done_msg">
+                🎉 Congratulations! You have completed all application steps. Make sure to keep your acknowledgment receipt and reference ID safely.
+            </div>
+
+            {% else %}
+            <!-- Raw text fallback if no discrete steps found -->
+            <div class="detail-text">{{ scheme.application if scheme.application else 'Visit the official portal to review application steps.' }}</div>
+            {% endif %}
+        </section>
+
+        <!-- Official Links Card -->
+        <section class="detail-card">
+            <h2 class="detail-sec-title">
+                <span>🔗</span>
+                <span data-i18n="official_portal_title">Official Government Portal & Links</span>
+            </h2>
+            <p style="margin-bottom: 14px; color: var(--text-secondary);">
+                Always submit your final application and sensitive personal details through official government (.gov.in / .nic.in) domains:
+            </p>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                {% if scheme.official_link %}
+                <a href="{{ scheme.official_link }}" target="_blank" rel="noopener noreferrer" class="btn-primary" data-i18n="btn_open_official">
+                    <span>Open Official Government Portal ↗</span>
+                </a>
+                {% endif %}
+                {% if scheme.myscheme_url %}
+                <a href="{{ scheme.myscheme_url }}" target="_blank" rel="noopener noreferrer" class="btn-secondary" data-i18n="btn_open_myscheme">
+                    <span>View on MyScheme.gov.in ↗</span>
+                </a>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- FAQs (Authentic from CSV) -->
+        {% if scheme.faqs %}
+        <section class="detail-card">
+            <h2 class="detail-sec-title">
+                <span>❓</span>
+                <span data-i18n="faqs_title">Frequently Asked Questions (FAQs)</span>
+            </h2>
+            <div class="detail-text">{{ scheme.faqs }}</div>
+        </section>
+        {% endif %}
+
+        <!-- Volunteer Help Pre-Filled Request Section (Req 7) -->
+        <section id="volunteer-assist" class="volunteer-section" style="margin-top: 36px;">
+            <div class="vol-header">
+                <div class="vol-badge" data-i18n="vol_demo_badge">DEMO PROTOTYPE ONLY</div>
+                <h2 class="vol-title" data-i18n="vol_title">Request Volunteer Guidance for this Scheme</h2>
+                <p class="vol-subtitle">
+                    Need help applying for <strong>{{ scheme.name }}</strong>? Request guidance from our simulated volunteer network.
+                </p>
+            </div>
+
+            <div class="demo-disclaimer-banner">
+                <div class="demo-icon">⚠️</div>
+                <div class="demo-text">
+                    <strong data-i18n="vol_demo_badge">DEMO NOTICE:</strong>
+                    <span data-i18n="vol_demo_alert">
+                        This volunteer request portal is a prototype for demonstration and testing. No real volunteers are currently dispatched. For immediate official government assistance, please visit your nearest Common Service Centre (CSC) or call the national citizen helpline at 14449.
+                    </span>
+                </div>
+            </div>
+
+            <!-- Demo Result Card -->
+            <div id="volunteerDemoResult" class="demo-result-card" style="display: none;">
+                <div class="demo-res-title">
+                    <span>✅</span>
+                    <span data-i18n="vol_success_title">Demo Request Submitted Successfully!</span>
+                </div>
+                <p>
+                    <span data-i18n="vol_success_msg">Thank you! Your simulated request has been recorded under Demo Tracking ID:</span>
+                </p>
+                <div>
+                    <span class="demo-res-id" id="demoTrackingId">JS-VOL-12345</span>
+                </div>
+                <div style="font-size: 0.92rem; color: #2e7d32;">
+                    <strong>Citizen:</strong> <span id="demoCitizenName"></span> | 
+                    <strong>Scheme:</strong> <span id="demoSchemeName">{{ scheme.name }}</span>
+                </div>
+                <p style="font-size: 0.85rem; color: #4e342e;" data-i18n="vol_helpline_note">
+                    Remember: For official government scheme applications, consult official government portals or CSC centers.
+                </p>
+            </div>
+
+            <!-- Pre-filled Form -->
+            <form id="volunteerRequestForm" method="post" action="/request-assistance">
+                <input type="hidden" name="scheme_name" value="{{ scheme.name }}">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="volName" data-i18n="vol_name_label">Your Full Name *</label>
+                        <input type="text" id="volName" name="name" class="form-input" required placeholder="e.g., Ramesh Kumar">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="volPhone" data-i18n="vol_phone_label">Mobile Number (10 digits) *</label>
+                        <input type="tel" id="volPhone" name="phone" class="form-input" required pattern="[0-9]{10}" placeholder="e.g., 9876543210">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="volLocation" data-i18n="vol_location_label">State & District / Town *</label>
+                        <input type="text" id="volLocation" name="state_district" class="form-input" required placeholder="e.g., {{ scheme.region if scheme.region else 'State/Town' }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="volType" data-i18n="vol_type_label">Type of Assistance Needed</label>
+                        <select id="volType" name="assistance_type" class="form-select">
+                            <option value="Form Filling Assistance" data-i18n="vol_type_opt1">Form Filling Assistance</option>
+                            <option value="Document Checklist Preparation" data-i18n="vol_type_opt2">Document Checklist Preparation</option>
+                            <option value="Eligibility Verification" data-i18n="vol_type_opt3">Eligibility Verification</option>
+                            <option value="Language Translation / Explanation" data-i18n="vol_type_opt4">Language Translation / Explanation</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label class="form-label" for="volNotes" data-i18n="vol_notes_label">Additional Notes or Accessibility Needs</label>
+                        <textarea id="volNotes" name="notes" class="form-textarea" placeholder="Provide any details about your situation or questions..."></textarea>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                    <button type="submit" class="btn-primary" data-i18n="btn_submit_vol">
+                        <span>📝</span>
+                        <span>Submit Volunteer Request (Demo)</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        {% else %}
+        <!-- Scheme Not Found State -->
+        <article class="detail-card" style="text-align: center; padding: 48px 24px;">
+            <div style="font-size: 3rem; margin-bottom: 12px;">🔍</div>
+            <h1 style="font-size: 1.8rem; font-weight: 800; color: #c62828; margin-bottom: 10px;">Scheme Not Found</h1>
+            <p style="color: var(--text-secondary); max-width: 500px; margin: 0 auto 20px auto;">
+                We could not find the details for this scheme. It may have been updated or moved.
+            </p>
+            <a href="/search" class="btn-primary" data-i18n="back_search">← Back to Scheme Search</a>
+        </article>
+        {% endif %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <h4 data-i18n="brand_name">JanSahay AI</h4>
+                <p data-i18n="hero_subtitle">
+                    Empowering Indian citizens with verified welfare information, eligibility checks, and step-by-step application guidance.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <p><a href="/" data-i18n="nav_home">Home</a></p>
+                <p><a href="/search" data-i18n="nav_search">Find Schemes</a></p>
+                <p><a href="/#volunteer" data-i18n="nav_volunteer">Volunteer Assistance (Demo)</a></p>
+                <p><a href="/#contact" data-i18n="nav_contact">Contact & Helplines</a></p>
+            </div>
+            <div class="footer-col">
+                <h4>Accessibility & Verification</h4>
+                <p>✓ Multilingual: Telugu, Hindi, English</p>
+                <p>✓ High Contrast & Font-Size Controls</p>
+                <p>✓ Official CSV Data: No invented requirements</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; JanSahay AI Project. All scheme details sourced from official Indian welfare records.
+        </div>
+    </footer>
+
+    <!-- Chatbot Floating Bubble & Window -->
+    <div class="chat-bubble-toggle" onclick="toggleChatWindow()" title="Open JanSahay AI Assistant" aria-label="Open AI Assistant">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+        </svg>
+    </div>
+
+    <div class="chat-window" id="chatWindow" role="dialog" aria-label="JanSahay AI Chatbot">
+        <div class="chat-header">
+            <span data-i18n="chat_title">JanSahay AI Assistant</span>
+            <button class="chat-close-btn" onclick="toggleChatWindow()" aria-label="Close Chat">&times;</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-message bot" data-i18n="chat_greeting">
+                Namaste! I am JanSahay AI. Ask me about any government scheme, eligibility, benefits or application steps in Telugu, Hindi or English.
+            </div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Ask about a scheme..." data-i18n-ph="chat_input_ph" onkeydown="handleKeydown(event)">
+            <button onclick="sendMessage()" data-i18n="chat_send">Send</button>
+        </div>
+    </div>
+
+    <!-- JanSahay AI Scripts -->
+    <script src="{{ url_for('static', filename='js/jansahay.js') }}"></script>
+</body>
+</html>

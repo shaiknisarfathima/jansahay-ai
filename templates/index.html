@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Government Schemes - JanSahay AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/jansahay.css') }}">
+</head>
+<body>
+    <!-- Indian Tricolor Accent Stripe -->
+    <div class="gov-tricolor-bar">
+        <span class="bar-saffron"></span>
+        <span class="bar-white"></span>
+        <span class="bar-green"></span>
+    </div>
+
+    <!-- Accessibility & Multilingual Bar (Req 3 & 6) -->
+    <div class="top-utility-bar">
+        <div class="top-utility-container">
+            <div class="utility-left">
+                <span class="utility-flag">🇮🇳 <strong>JanSahay AI</strong></span>
+                <span style="opacity: 0.7;">|</span>
+                <span data-i18n="search_page_title" style="font-size: 0.8rem; opacity: 0.9;">Search & Filter Government Schemes</span>
+            </div>
+            <div class="utility-right">
+                <!-- Language Selector (Req 3) -->
+                <div class="ctrl-group">
+                    <span class="ctrl-label">Language:</span>
+                    <button type="button" class="btn-util active" data-lang-btn="en" onclick="setLanguage('en')">English</button>
+                    <button type="button" class="btn-util" data-lang-btn="hi" onclick="setLanguage('hi')">हिन्दी</button>
+                    <button type="button" class="btn-util" data-lang-btn="te" onclick="setLanguage('te')">తెలుగు</button>
+                </div>
+                <!-- Font Size Controls (Req 6) -->
+                <div class="ctrl-group">
+                    <span class="ctrl-label" data-i18n="font_label">Font:</span>
+                    <button type="button" class="btn-util" data-fontsize-btn="sm" onclick="setFontSize('sm')" title="Small Text">A-</button>
+                    <button type="button" class="btn-util active" data-fontsize-btn="md" onclick="setFontSize('md')" title="Normal Text">A</button>
+                    <button type="button" class="btn-util" data-fontsize-btn="lg" onclick="setFontSize('lg')" title="Large Text">A+</button>
+                    <button type="button" class="btn-util" data-fontsize-btn="xl" onclick="setFontSize('xl')" title="Extra Large Text">A++</button>
+                </div>
+                <!-- High Contrast Toggle (Req 6) -->
+                <button type="button" id="contrastToggleBtn" class="btn-util" onclick="toggleContrast()" data-i18n="contrast_btn" title="Toggle High Contrast Mode">
+                    🌓 High Contrast
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Navigation Bar -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="/" class="brand-link">
+                <div class="brand-crest">🏛️</div>
+                <div>
+                    <div class="brand-title" data-i18n="brand_name">JanSahay AI</div>
+                    <div class="brand-subtitle" data-i18n="brand_subtitle">Government Scheme Discovery & Assistance</div>
+                </div>
+            </a>
+            <div class="nav-links">
+                <a href="/" data-i18n="nav_home">Home</a>
+                <a href="/search" class="active" data-i18n="nav_search">Find Schemes</a>
+                <a href="/#volunteer" data-i18n="nav_volunteer">
+                    Volunteer Help <span class="nav-badge-pill">Demo</span>
+                </a>
+                <a href="/#contact" data-i18n="nav_contact">Contact</a>
+                <a href="javascript:void(0)" onclick="toggleChatWindow()" data-i18n="nav_chat">💬 AI Assistant</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Content -->
+    <main class="container">
+        <!-- Page Header -->
+        <div style="margin-bottom: 24px;">
+            <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-primary); margin-bottom: 6px;" data-i18n="search_page_title">
+                Search & Filter Government Schemes
+            </h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem;" data-i18n="search_page_subtitle">
+                Find central and state government schemes matching your needs.
+            </p>
+        </div>
+
+        <!-- Filter Card -->
+        <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 32px;">
+            <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 18px;" data-i18n="filter_heading">
+                Search Options & Filters
+            </h2>
+
+            <!-- Fast Keyword Search Form -->
+            <form method="post" action="/search" style="margin-bottom: 24px; padding-bottom: 20px; border-bottom: 2px solid var(--bg-page);">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 260px;">
+                        <label for="query" class="form-label" data-i18n="keyword_label">Keyword Search</label>
+                        <input type="text" name="query" id="query" class="form-input" 
+                               value="{{ query if query else '' }}"
+                               placeholder="e.g., student scholarship, farmer subsidy, pension, health..." 
+                               data-i18n-ph="keyword_placeholder">
+                    </div>
+                    <div style="display: flex; align-items: flex-end;">
+                        <button type="submit" class="btn-primary" data-i18n="btn_keyword_search">
+                            <span>🔍</span>
+                            <span>Search by Keyword</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Categorical Filter Form -->
+            <form method="post" action="/search">
+                <div class="form-grid">
+                    <!-- State / Region -->
+                    <div class="form-group">
+                        <label for="region" class="form-label" data-i18n="region_label">State / UT / Ministry</label>
+                        <select name="region" id="region" class="form-select">
+                            <option value="" data-i18n="all_regions">-- All States & Ministries --</option>
+                            {% for r in regions %}
+                            <option value="{{ r }}" {% if selected_region == r %}selected{% endif %}>{{ r }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Level (Central / State) -->
+                    <div class="form-group">
+                        <label for="level" class="form-label" data-i18n="level_label">Government Level</label>
+                        <select name="level" id="level" class="form-select">
+                            <option value="" data-i18n="all_levels">-- All Levels (Central & State) --</option>
+                            {% for lvl in levels %}
+                            <option value="{{ lvl }}" {% if selected_level == lvl %}selected{% endif %}>{{ lvl }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Application Mode -->
+                    <div class="form-group">
+                        <label for="mode" class="form-label" data-i18n="mode_label">Application Mode</label>
+                        <select name="mode" id="mode" class="form-select">
+                            <option value="" data-i18n="all_modes">-- All Modes (Online / Offline) --</option>
+                            {% for m in modes %}
+                            <option value="{{ m }}" {% if selected_mode == m %}selected{% endif %}>{{ m }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Legacy Category Filters for Backwards Compatibility -->
+                    {% if ages %}
+                    <div class="form-group">
+                        <label for="age" class="form-label">Age Group</label>
+                        <select name="age" id="age" class="form-select">
+                            <option value="">Select age</option>
+                            {% for o in ages %}
+                            <option value="{{ o }}">{{ o }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    {% if genders %}
+                    <div class="form-group">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select name="gender" id="gender" class="form-select">
+                            <option value="">Select gender</option>
+                            {% for o in genders %}
+                            <option value="{{ o }}">{{ o }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    {% if occupations %}
+                    <div class="form-group">
+                        <label for="occupation" class="form-label">Occupation</label>
+                        <select name="occupation" id="occupation" class="form-select">
+                            <option value="">Select occupation</option>
+                            {% for o in occupations %}
+                            <option value="{{ o }}">{{ o }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+
+                    {% if castes %}
+                    <div class="form-group">
+                        <label for="caste" class="form-label">Caste Category</label>
+                        <select name="caste" id="caste" class="form-select">
+                            <option value="">Select caste</option>
+                            {% for o in castes %}
+                            <option value="{{ o }}">{{ o }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Form Action Buttons -->
+                <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 10px;">
+                    <button type="submit" class="btn-primary" data-i18n="btn_filter">
+                        <span>⚡</span>
+                        <span>Apply Filters</span>
+                    </button>
+                    <a href="/search" class="btn-secondary" data-i18n="btn_reset">
+                        <span>↺</span>
+                        <span>Reset Filters</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- SCHEME CARDS RESULTS SECTION (Req 4) -->
+        <section class="results">
+            {% if results is not none %}
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; flex-wrap: wrap; gap: 10px;">
+                <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary);" data-i18n="results_heading">
+                    Matched Government Schemes
+                </h2>
+                <span style="font-weight: 700; color: var(--primary); font-size: 0.95rem;">
+                    Found {{ results|length }} scheme{{ 's' if results|length != 1 else '' }}
+                </span>
+            </div>
+
+            {% if results|length == 0 %}
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 32px; text-align: center;">
+                <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 14px;" data-i18n="no_results_msg">
+                    No schemes found matching your search. Try broader keywords or clearing filters.
+                </p>
+                <a href="/search" class="btn-primary" data-i18n="btn_reset">Reset Filters</a>
+            </div>
+            {% else %}
+            <!-- Scheme Cards Grid/List -->
+            <div class="scheme-cards-container">
+                {% for s in results %}
+                <article class="scheme-card">
+                    <div class="scheme-card-header">
+                        <h3 class="scheme-card-title">
+                            <a href="{{ url_for('scheme_details', scheme_id=s.id) }}">{{ s.name }}</a>
+                        </h3>
+                        <div class="badges-wrap">
+                            {% if s.level %}
+                            <span class="badge {{ 'badge-central' if 'central' in s.level.lower() else 'badge-state' }}">
+                                🏛️ {{ s.level }}
+                            </span>
+                            {% endif %}
+                            {% if s.region %}
+                            <span class="badge badge-state">
+                                📍 {{ s.region }}
+                            </span>
+                            {% endif %}
+                            {% if s.mode %}
+                            <span class="badge {{ 'badge-online' if 'online' in s.mode.lower() else 'badge-offline' }}">
+                                🌐 {{ s.mode }}
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Authentic Eligibility Criteria Snippet from CSV (Never invented) -->
+                    {% if s.eligibility %}
+                    <div class="card-snippet-box">
+                        <span class="snippet-label" data-i18n="card_eligibility">Eligibility Criteria</span>
+                        <p class="snippet-text">{{ s.eligibility[:220] }}{% if s.eligibility|length > 220 %}...{% endif %}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Authentic Benefits Snippet from CSV (Never invented) -->
+                    {% if s.benefits %}
+                    <div class="card-snippet-box" style="border-left-color: #2e7d32;">
+                        <span class="snippet-label" style="color: #2e7d32;" data-i18n="card_benefits">Benefits Summary</span>
+                        <p class="snippet-text">{{ s.benefits[:220] }}{% if s.benefits|length > 220 %}...{% endif %}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Action Buttons -->
+                    <div class="card-actions-bar">
+                        <a href="{{ url_for('scheme_details', scheme_id=s.id) }}" class="btn-primary" data-i18n="btn_view_scheme">
+                            <span>View Scheme & Steps →</span>
+                        </a>
+                        <a href="/#volunteer" class="btn-secondary" data-i18n="btn_help_card">
+                            <span>🤝 Request Help (Demo)</span>
+                        </a>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {% else %}
+            <!-- Initial Prompt State: Encouraging citizens to search or browse -->
+            <div style="background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 36px; text-align: center;">
+                <div style="font-size: 3rem; margin-bottom: 12px;">🔎</div>
+                <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--primary); margin-bottom: 8px;">
+                    Search Over 2,000 Verified Government Schemes
+                </h3>
+                <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto 20px auto; line-height: 1.5;">
+                    Enter a keyword such as "farmer", "scholarship", "health", or choose your state to view applicable welfare programs.
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <a href="/search?query=farmer" class="quick-chip" style="color: var(--primary); background: var(--primary-light); border-color: var(--primary-border);">🌾 Farmers</a>
+                    <a href="/search?query=scholarship" class="quick-chip" style="color: var(--primary); background: var(--primary-light); border-color: var(--primary-border);">🎓 Scholarships</a>
+                    <a href="/search?query=women" class="quick-chip" style="color: var(--primary); background: var(--primary-light); border-color: var(--primary-border);">👩 Women</a>
+                    <a href="/search?query=subsidy" class="quick-chip" style="color: var(--primary); background: var(--primary-light); border-color: var(--primary-border);">💼 Subsidies</a>
+                    <a href="/search?query=pension" class="quick-chip" style="color: var(--primary); background: var(--primary-light); border-color: var(--primary-border);">👵 Pensions</a>
+                </div>
+            </div>
+            {% endif %}
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <h4 data-i18n="brand_name">JanSahay AI</h4>
+                <p data-i18n="hero_subtitle">
+                    Empowering Indian citizens with verified welfare information, eligibility checks, and step-by-step application guidance.
+                </p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <p><a href="/" data-i18n="nav_home">Home</a></p>
+                <p><a href="/search" data-i18n="nav_search">Find Schemes</a></p>
+                <p><a href="/#volunteer" data-i18n="nav_volunteer">Volunteer Assistance (Demo)</a></p>
+                <p><a href="/#contact" data-i18n="nav_contact">Contact & Helplines</a></p>
+            </div>
+            <div class="footer-col">
+                <h4>Accessibility & Verification</h4>
+                <p>✓ Multilingual: Telugu, Hindi, English</p>
+                <p>✓ High Contrast & Font-Size Controls</p>
+                <p>✓ Pure CSV Official Data: Zero invented requirements</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; JanSahay AI Project. All scheme details sourced from official Indian welfare records.
+        </div>
+    </footer>
+
+    <!-- Chatbot Floating Bubble & Window -->
+    <div class="chat-bubble-toggle" onclick="toggleChatWindow()" title="Open JanSahay AI Assistant" aria-label="Open AI Assistant">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="white">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/>
+        </svg>
+    </div>
+
+    <div class="chat-window" id="chatWindow" role="dialog" aria-label="JanSahay AI Chatbot">
+        <div class="chat-header">
+            <span data-i18n="chat_title">JanSahay AI Assistant</span>
+            <button class="chat-close-btn" onclick="toggleChatWindow()" aria-label="Close Chat">&times;</button>
+        </div>
+        <div class="chat-body" id="chatBody">
+            <div class="chat-message bot" data-i18n="chat_greeting">
+                Namaste! I am JanSahay AI. Ask me about any government scheme, eligibility, benefits or application steps in Telugu, Hindi or English.
+            </div>
+        </div>
+        <div class="chat-footer">
+            <input type="text" id="chatInput" placeholder="Ask about a scheme..." data-i18n-ph="chat_input_ph" onkeydown="handleKeydown(event)">
+            <button onclick="sendMessage()" data-i18n="chat_send">Send</button>
+        </div>
+    </div>
+
+    <!-- JanSahay AI Scripts -->
+    <script src="{{ url_for('static', filename='js/jansahay.js') }}"></script>
+</body>
+</html>
